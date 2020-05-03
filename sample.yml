@@ -1,0 +1,9 @@
+services:
+  - name: service-01
+    namespace: default
+    port: 8080
+    targetPort: 880
+  - name: service-02
+    namespace: default
+    port: 8081
+    targetPort: 8080

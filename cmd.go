@@ -13,7 +13,7 @@ var (
 	rootCmd  = &cobra.Command{Use: "kbf"}
 
 	cmdPwd = &cobra.Command{
-		Use:   "connect",
+		Use:   "port-forward",
 		Short: "port-forward to k8s services using yml",
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {

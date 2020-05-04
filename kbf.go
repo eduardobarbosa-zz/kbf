@@ -72,7 +72,7 @@ func portForwarding(forward Forward) error {
 		go portForwardService(s.Namespace, s.Name, s.Port, s.TargetPort, &wg, config, clientset)
 	}
 
-	log.Println("Port forwarding is ready to get traffic!")
+	log.Println("Ready to get traffic!")
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 
 	wg.Wait()
@@ -148,7 +148,7 @@ func portForwardService(namespace string, service string, localPort int, podPort
 			}
 		}
 
-		log.Printf("Forward %s retrying in %d seconds", service, wait/time.Second)
+		log.Printf("Forward %s retry in %d seconds", service, wait/time.Second)
 		time.Sleep(wait)
 
 	}

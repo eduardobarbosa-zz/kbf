@@ -1,15 +1,15 @@
 # KBF
 
-Kubernetes yml port forwarding
+Kubernetes yml port-forward
 
 # Use
 
 Usage:
-  kbf connect [flags]
+  kbf port-forward [flags]
 
  Flags:
    -f, --file string   forward file path (default $PWD/forward.yml)
-   -h, --help          help for connect
+   -h, --help          help for port-forward
 
 ## Forward file structure
 

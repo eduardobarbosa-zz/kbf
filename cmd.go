@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -46,10 +45,13 @@ func showErrorAndExit(cmd *cobra.Command, err error) {
 }
 
 func initConfig() {
-	dat, err := ioutil.ReadFile("banner")
-	if err != nil {
-		fmt.Println("Error: " + err.Error())
-		os.Exit(1)
-	}
-	fmt.Println(string(dat))
+	fmt.Println(`
+ _  ______  _____
+| |/ | __ )|  ___|
+| ' /|  _ \| |_
+| . \| |_) |  _|
+|_|\_|____/|_|
+
+Kubernetes yaml port-forward ;)
+`)
 }

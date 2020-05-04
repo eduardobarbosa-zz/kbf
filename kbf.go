@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -43,7 +44,7 @@ type PortForwardAPodRequest struct {
 	ReadyCh chan struct{}
 }
 
-func portForwarding(forward Forward) {
+func portForwarding(forward Forward) error {
 
 	var wg sync.WaitGroup
 
@@ -58,12 +59,12 @@ func portForwarding(forward Forward) {
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
-		log.Panic(err.Error())
+		return err
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Panic(err.Error())
+		return err
 	}
 
 	for _, s := range forward.Services {
@@ -75,6 +76,7 @@ func portForwarding(forward Forward) {
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 
 	wg.Wait()
+	return nil
 }
 
 func portForwardService(namespace string, service string, localPort int, podPort int, wg *sync.WaitGroup, config *rest.Config, clientset *kubernetes.Clientset) {
@@ -160,13 +162,13 @@ func PortForwardAPod(req PortForwardAPodRequest) error {
 
 	transport, upgrader, err := spdy.RoundTripperFor(req.RestConfig)
 	if err != nil {
-		log.Panic(err.Error())
+		return err
 	}
 
 	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, http.MethodPost, &url.URL{Scheme: "https", Path: path, Host: hostIP})
 	fw, err := portforward.New(dialer, []string{fmt.Sprintf("%d:%d", req.LocalPort, req.PodPort)}, req.StopCh, req.ReadyCh, req.Streams.Out, req.Streams.ErrOut)
 	if err != nil {
-		log.Panic(err.Error())
+		return err
 	}
 	return fw.ForwardPorts()
 }
@@ -177,7 +179,6 @@ func getServerPod(clientset *kubernetes.Clientset, namespace string, serviceName
 
 	svc, err := serviceClient.Get(serviceName, metav1.GetOptions{})
 	if err != nil {
-		log.Println(err.Error())
 		return "", err
 	}
 
@@ -185,7 +186,7 @@ func getServerPod(clientset *kubernetes.Clientset, namespace string, serviceName
 	selector := set.AsSelector().String()
 
 	if selector == "" {
-		log.Panicf("WARNING: No Pod selector for service %s in %s on cluster %s.\n", svc.Name, svc.Namespace, svc.ClusterName)
+		return "", errors.New(fmt.Sprintf("WARNING: No Pod selector for service %s in %s on cluster %s.\n", svc.Name, svc.Namespace, svc.ClusterName))
 	}
 
 	listOpts := metav1.ListOptions{LabelSelector: selector}
@@ -193,7 +194,6 @@ func getServerPod(clientset *kubernetes.Clientset, namespace string, serviceName
 	pods, err := clientset.CoreV1().Pods(svc.Namespace).List(listOpts)
 
 	if err != nil {
-		log.Println(err.Error())
 		return "", err
 	}
 

@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -17,19 +17,19 @@ type Forward struct {
 	} `yaml:"services"`
 }
 
-func loadFromFile(path string) Forward {
+func loadFromFile(path string) (Forward, error) {
 
 	filename, _ := filepath.Abs(path)
 	yamlFile, err := ioutil.ReadFile(filename)
+	var forward Forward
 
 	if err != nil {
-		log.Panic(err.Error())
+		return forward, errors.New(err.Error())
 	}
 
-	var forward Forward
 	err = yaml.Unmarshal(yamlFile, &forward)
 	if err != nil {
-		log.Panic(err.Error())
+		return forward, errors.New(err.Error())
 	}
-	return forward
+	return forward, nil
 }
